@@ -1,0 +1,7 @@
+interface:
+  display_name: "WeChat Vibe Export"
+  short_description: "Freshness-check and export locally authorized WeChat data"
+  default_prompt: "Use $wechat-vibe-export to refresh the local WeChat export safely, then summarize the requested authorized conversation."
+
+policy:
+  allow_implicit_invocation: true
