@@ -1,0 +1,25 @@
+# Private local data / 私有本地数据
+outputs/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.raw_voice_data.bin
+*.silk
+*.wav
+*.mp3
+*.mp4
+
+# Credentials and environment / 凭据和环境
+.env
+.env.*
+!*.example
+*key*.json
+*token*
+*credential*
+
+# Local runtime / 本地运行产物
+.venv/
+__pycache__/
+*.py[cod]
