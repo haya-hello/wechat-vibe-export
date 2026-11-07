@@ -14,6 +14,19 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+# 中文：限制会进入文件名或环境变量名的参数，避免路径穿越和变量名歧义。
+# English: Constrain values used as file names or environment-variable names.
+if ($TargetLabel -notmatch '^[A-Za-z0-9_-]+$') {
+    throw "TargetLabel must contain only ASCII letters, digits, '_' or '-'."
+}
+if ($OutputEnvironmentVariable -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') {
+    throw "OutputEnvironmentVariable must be a valid environment-variable name."
+}
+if ($AccountId -match '[\\/]' -or $AccountId -eq '..' -or $AccountId.Contains('..')) {
+    throw "AccountId must be a single relative directory name."
+}
+
 $workspace = (Resolve-Path -LiteralPath $WorkspaceRoot).Path
 $toolRootResolved = (Resolve-Path -LiteralPath $ToolRoot).Path
 $storageResolved = (Resolve-Path -LiteralPath $WeChatStorage).Path
@@ -36,9 +49,10 @@ try { $refreshMutexAcquired = $refreshMutex.WaitOne([System.TimeSpan]::FromSecon
 catch [System.Threading.AbandonedMutexException] { $refreshMutexAcquired = $true }
 if (!$refreshMutexAcquired) { $refreshMutex.Dispose(); throw "Timed out waiting for another WeChat refresh process to finish." }
 trap {
+    $trapException = $_.Exception
     if ($refreshMutexAcquired) { $refreshMutex.ReleaseMutex(); $refreshMutexAcquired = $false }
-    $refreshMutex.Dispose()
-    throw
+    if ($null -ne $refreshMutex) { $refreshMutex.Dispose() }
+    throw $trapException
 }
 
 function Get-SharedFileSha256 {
